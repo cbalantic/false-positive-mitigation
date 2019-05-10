@@ -1,7 +1,23 @@
-# AMMonitor functions as of 3/X/2019, bundled for Bioacoustics submission
-# Does not include all AMMonitor functions; only those necessary to run the manuscript experiment located in bioacoustics-reproducible-driver.R
-# Final function code and documentation may differ slightly. 
-# Package data not included for function example documentation at this time; contact us if this is of interest to you.
+###############################################################################
+#                                                                             #
+# Functions to accompany analysis and results from:                           #
+#                                                                             #
+# Balantic, C. M., & Donovan, T. M. (2019).                                   #
+#                                                                             #
+# Statistical learning mitigation of false positives                          #
+# from template-detected data in automated acoustic wildlife monitoring       #
+#                                                                             #
+# Bioacoustics                                                                #
+#                                                                             #
+# https://www.tandfonline.com/doi/full/10.1080/09524622.2019.1605309          #
+#                                                                             #
+###############################################################################
+
+# NOTE: This file does not include all AMMonitor package functions. 
+# It includes only those necessary to run the manuscript experiment located in
+# false-positives-script.R
+# Package data not included for function example documentation at this time; 
+# contact me if this is of interest to you.
 
 # Function list: 
 # classifierAssess

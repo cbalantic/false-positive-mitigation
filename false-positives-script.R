@@ -1,25 +1,28 @@
 ###############################################################################
-#
-# Script to accompany analysis and results from: 
-#
-# "Statistical learning mitigation of false positives from template-detected 
-#  data in automated acoustic wildlife monitoring"
-#
-# by Cathleen M. Balantic & Therese M. Donovan
-#
-# Submitted to Bioacoustics - revised 03/13/2019
-#
+#                                                                             #
+# Script to accompany analysis and results from:                              #
+#                                                                             #
+# Balantic, C. M., & Donovan, T. M. (2019).                                   #
+#                                                                             #
+# Statistical learning mitigation of false positives                          #
+# from template-detected data in automated acoustic wildlife monitoring       #
+#                                                                             #
+# Bioacoustics                                                                #
+#                                                                             #
+# https://www.tandfonline.com/doi/full/10.1080/09524622.2019.1605309          #
+#                                                                             #
 ###############################################################################
 
 # This code provides a means to reproduce analysis and results from the paper
-# submission, "Statistical learning mitigation of false positives from 
+# "Statistical learning mitigation of false positives from 
 # template-detected data in automated acoustic wildlife monitoring" by 
 # Cathleen M. Balantic & Therese M. Donovan.
 
-# The AMMonitor package is not quite finalized at this time, must undergo
-# review, and is still private on Github. We have provided all necessary 
-# AMMonitor functions for this analysis in an accompanying file,
-# 'ammonitor-functions.R', which can be sourced in to run the following analysis.
+# The AMMonitor R package referenced in this paper is not quite finalized at 
+# this time, must undergo review, and is still private on Github. Thus, we have
+# provided all necessary AMMonitor functions for this paper in an 
+# accompanying file, 'ammonitor-functions.R', which can be sourced in to run 
+# the following analysis. 
 
 
 # SECTION 0: SET-UP ===========================================================
@@ -40,7 +43,13 @@ library(ggplot2)
 # Source in AMMonitor functions from ammonitor-functions.R
 source('ammonitor-functions.R')
 
-# Connect to the SQLite database
+# CONNECT TO THE SQLITE DATABASE: 
+# Recall from the Github repository ReadMe that you need to download 
+# the 'ammonitor_bioacoustics.sqlite' database located on Zenodo at
+# https://zenodo.org/record/2720105 
+# The DOI for the SQLite database is 10.5281/zenodo.2720105.
+# Once downloaded into your current working directory, you will be 
+# able to run the next three lines of code and connect to the database: 
 db.name <- 'ammonitor_bioacoustics.sqlite'
 db.path <- paste0(getwd(), '/', db.name)
 conx <- RSQLite::dbConnect(drv = dbDriver('SQLite'), dbname = db.path)
@@ -84,14 +93,15 @@ thresholds <- c(0.43, 0.33, 0.23)
 # false alarms plotted with red borders. The loop also uses plotVerificationsAvg()
 # to plot the average spectrogram across all detections, all target signals, and
 # all false alarms for each species. Note that these plots are operating for
-# for ALL labeled data in the database now (not just March 2016):
+# for ALL labeled data in the database now (not just March 2016 as in Fig. 5):
 for (i in 1:3) {
   plotVerifications(db.path = db.path, 
                     templateID = template.ids[i], 
                     score.threshold = thresholds[i], 
                     label.type = 'speciesID', 
                     new.window = TRUE, box.lwd = 1)
-  x11(height = 6, width = 9)
+  # note: x11() function may not work on Macs, try plot.new()
+  x11(height = 6, width = 9) 
   plotVerificationsAvg(db.path,  
                        templateID = template.ids[i], 
                        score.threshold = thresholds[i], 
@@ -166,7 +176,7 @@ verd <- classifierModels(db.path = db.path,
 total.time <- Sys.time() - start
 total.time 
 # Took ~16 minutes to run. Much slower than our previous non-SQLite system,
-# Likely due to serialization / unserialization process of scores in SQL 'BLOB' objects.
+# Perhaps due to serialization / unserialization process of scores in SQLite BLOB objects.
 
 # Name all of these by hand and turn them into amModel objects
 species.classifiers <- list(ecdo = ecdo, gaqu = gaqu, verd = verd)
@@ -259,7 +269,7 @@ verd.tr[,for.table]
 # ECDO: 
 imps <- list()
 for (i in 1:5) {
-  mod <- getAMModel(amml = classifiers, x = ecdo.models[i])
+  mod <- AMModels::getAMModel(amml = classifiers, x = ecdo.models[i])
   imps[[i]] <- caret::varImp(object = mod$training.fit, useModel = TRUE, scale = FALSE)
 }
 names(imps) <- ecdo.models
@@ -280,7 +290,7 @@ plot(imps[[4]], top = 50, col = 'black',
 # GAQU
 imps <- list()
 for (i in 1:5) {
-  mod <- getAMModel(amml = classifiers, x = gaqu.models[i])
+  mod <- AMModels::getAMModel(amml = classifiers, x = gaqu.models[i])
   imps[[i]] <- caret::varImp(object = mod$training.fit, useModel = TRUE, scale = FALSE)
 }
 
@@ -301,7 +311,7 @@ plot(imps[[4]], top = 50, col = 'black',
 # VERD
 imps <- list()
 for (i in 1:5) {
-  mod <- getAMModel(amml = classifiers, x = verd.models[i])
+  mod <- AMModels::getAMModel(amml = classifiers, x = verd.models[i])
   imps[[i]] <- caret::varImp(object = mod$training.fit, useModel = TRUE, scale = FALSE)
 }
 names(imps) <- verd.models
@@ -344,9 +354,11 @@ for (i in 1:length(sp)) {
   preds.march <- classifierPredict(db.path = db.path,
                                    amml = classifiers,
                                    date.range = c('2016-03-01', '2016-03-31'),
-                                   templateID = sp[[i]]$templateID, label.type = 'speciesID',
+                                   templateID = sp[[i]]$templateID, 
+                                   label.type = 'speciesID',
                                    score.threshold = sp[[i]]$score.threshold,
-                                   classifiers = c('glmnet', 'svmLinear', 'svmRadial', 'rf', 'kknn'),
+                                   classifiers = c('glmnet', 'svmLinear', 
+                                                   'svmRadial', 'rf', 'kknn'),
                                    db.insert = FALSE)
   
   # Gather classifications on the test data 
@@ -391,7 +403,7 @@ ens.perf
 
 # ROC curves of training and testing data
 dev.off()
-x11(height = 6, width = 7)
+x11(height = 6, width = 7) # note: x11() may not work on Macs
 windowsFonts(Times = windowsFont("Times New Roman"))
 par(mfrow = c(2,3), family = 'Times')
 font <- 6 
@@ -399,14 +411,17 @@ model.names <- list(ECDO = ecdo.models, GAQU = gaqu.models, VERD = verd.models)
 for (i in c('train', 'test')) {
   if (i == 'train') ens <- NULL; if (i == 'test') ens <- 'f1'
   for (j in 1:3) {
-    plotROC(db.path = db.path, amml = classifiers, model.names = model.names[[j]],
+    plotROC(db.path = db.path, amml = classifiers, 
+            model.names = model.names[[j]],
             curve.type = 'roc', data.type = i, main = names(model.names)[j],
             ensembles = ens, lwd = 1, cex.lab = 1.25)
   }
   if (i == 'train')
-    mtext('ROC Curves of Training Data', side = 3, line = -2.25, outer = TRUE, font = font)
+    mtext('ROC Curves of Training Data', side = 3, 
+          line = -2.25, outer = TRUE, font = font)
   else
-    mtext('ROC Curves of Test Data', side = 3, line = -25, outer = TRUE, font = font)
+    mtext('ROC Curves of Test Data', side = 3, 
+          line = -25, outer = TRUE, font = font)
 }
 
 
@@ -417,7 +432,7 @@ layout(mat = matrix(c(1,2,3,
                       4,5,6)), 
        widths = rep(2.66666667, 6), 
        heights = rep(4,6))
-x11(height = 8, width = 8)
+x11(height = 8, width = 8) # note: x11() may not work on Macs
 windowsFonts(Times = windowsFont("Times New Roman"))
 par(mfrow = c(2,3), family = 'Times')
 font <- 6 
@@ -425,22 +440,28 @@ model.names <- list(ECDO = ecdo.models, GAQU = gaqu.models, VERD = verd.models)
 for (i in c('train', 'test')) {
   if (i == 'train') ens <- NULL; if (i == 'test') ens <- 'f1'
   for (j in 1:3) {
-    plotROC(db.path = db.path, amml = classifiers, model.names = model.names[[j]],
+    plotROC(db.path = db.path, amml = classifiers, 
+            model.names = model.names[[j]],
             curve.type = 'pr', data.type = i, ensembles = ens,
             main = names(model.names)[j], lwd = 1, cex.lab = 1.25)
   }
   if (i == 'train')
-    mtext('Precision-Recall Curves of Training Data', side = 3, line = -2.25, outer = TRUE, font = font)
+    mtext('Precision-Recall Curves of Training Data', side = 3, 
+          line = -2.25, outer = TRUE, font = font)
   else
-    mtext('Precision-Recall Curves of Test Data', side = 3, line = -25, outer = TRUE, font = font)
+    mtext('Precision-Recall Curves of Test Data', side = 3, 
+          line = -25, outer = TRUE, font = font)
 }
-
 
 
 # SECTION 9: GATHER PREDICTIONS ON UNSEEN DATA -- APRIL 2016 - MAY 2017: =========
 
+# When using the classifierPredict() function below: 
+#
 # Set db.insert = TRUE to insert classifications into the database
-#                (this has already been done)
+# (this has already been done and you don't need to do it again - you will 
+# encounter a foreign key constraint scolding from the SQLite database if you
+# attempt to insert classifications again)
 #
 # Set db.insert = FALSE to simply return a data.table of predictions
 
@@ -450,9 +471,11 @@ for (i in c('train', 'test')) {
 pred.ecdo <- classifierPredict(db.path = db.path,
                                amml = classifiers,
                                date.range = c('2016-04-01', '2017-05-31'),
-                               templateID = 'e7', label.type = 'speciesID',
+                               templateID = 'e7', 
+                               label.type = 'speciesID',
                                score.threshold = 0.43,
-                               classifiers = c('glmnet', 'svmLinear', 'svmRadial', 'rf', 'kknn'),
+                               classifiers = c('glmnet', 'svmLinear', 
+                                               'svmRadial', 'rf', 'kknn'),
                                db.insert = FALSE)
 # GAQU
 pred.gaqu <- classifierPredict(db.path = db.path,
@@ -461,7 +484,8 @@ pred.gaqu <- classifierPredict(db.path = db.path,
                                templateID = 'g5',
                                label.type = 'speciesID',
                                score.threshold = 0.33,
-                               classifiers = c('glmnet', 'svmLinear', 'svmRadial', 'rf', 'kknn'),
+                               classifiers = c('glmnet', 'svmLinear', 
+                                               'svmRadial', 'rf', 'kknn'),
                                db.insert = FALSE)
 # VERD 
 pred.verd <- classifierPredict(db.path = db.path, 
@@ -470,11 +494,12 @@ pred.verd <- classifierPredict(db.path = db.path,
                                templateID = 'v1', 
                                label.type = 'speciesID', 
                                score.threshold = 0.23, 
-                               classifiers = c('glmnet', 'svmLinear', 'svmRadial', 'rf', 'kknn'), 
+                               classifiers = c('glmnet', 'svmLinear', 
+                                               'svmRadial', 'rf', 'kknn'), 
                                db.insert = FALSE)
 
 
-# SECTION 10: CREATE ENSEMBLE ON UNSEEN DATA -- APRIL 2016 - MAY 2017 ===========
+# SECTION 10: CREATE ENSEMBLE ON UNSEEN DATA -- APRIL 2016 - MAY 2017 =========
 ens.pred.ecdo <- classifierEnsemble(db.path = db.path,
                                     classificationsDT = pred.ecdo,
                                     amml = classifiers,
@@ -490,7 +515,7 @@ ens.pred.verd <- classifierEnsemble(db.path = db.path,
                                     amml = classifiers, 
                                     ensemble = 'f1')
 
-# SECTION 11: ASSESS PERFORMANCE ON UNSEEN DATA -- APRIL 2016 - MAY 2017: ==================================
+# SECTION 11: ASSESS PERFORMANCE ON UNSEEN DATA -- APRIL 2016 - MAY 2017: =====
 
 # This section generates the results used in Figure 8
 
@@ -545,7 +570,8 @@ mets <- c(rep('Sensitivity',3),
           rep('F1', 3),
           rep('Specificity', 3))
 dat <- data.frame(Template = rep(c('ECDO', 'GAQU', 'VERD'),8),
-                  Type = c(rep('Classification Phase',12), rep('Template Screening Phase',12)),
+                  Type = c(rep('Classification Phase',12), 
+                           rep('Template Screening Phase',12)),
                   variable = rep(mets,2),
                   value = c(results.cl[,'Sensitivity'], # classification system
                             results.cl[,'Pos Pred Value'], # classification system
