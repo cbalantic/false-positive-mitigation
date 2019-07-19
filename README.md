@@ -1,4 +1,4 @@
-This Github repository exists in service of open science, to reproduce the analysis from the following paper: 
+This Github repository exists to reproduce the analysis from the following paper: 
 
 Balantic, C. M., & Donovan, T. M. (2019).                                   
 Statistical learning mitigation of false positives from template-detected data in automated acoustic wildlife monitoring. Bioacoustics. https://www.tandfonline.com/doi/full/10.1080/09524622.2019.1605309                                                                
