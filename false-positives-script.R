@@ -18,11 +18,13 @@
 # template-detected data in automated acoustic wildlife monitoring" by 
 # Cathleen M. Balantic & Therese M. Donovan.
 
-# The AMMonitor R package referenced in this paper is not quite finalized at 
-# this time, must undergo review, and is still private on Github. Thus, we have
-# provided all necessary AMMonitor functions for this paper in an 
-# accompanying file, 'ammonitor-functions.R', which can be sourced in to run 
-# the following analysis. 
+# The AMMonitor R package referenced in this paper was not finalized at the 
+# time of publication. Thus, we provided all necessary AMMonitor functions for 
+# this paper in an accompanying file, 'ammonitor-functions.R', which can be 
+# sourced in to run the following analysis. 
+
+# UPDATE (2019-10-09): the AMMonitor package is now available at: 
+# https://code.usgs.gov/vtcfwru/ammonitor
 
 
 # SECTION 0: SET-UP ===========================================================
